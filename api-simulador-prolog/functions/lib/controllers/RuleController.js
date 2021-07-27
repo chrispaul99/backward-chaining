@@ -26,13 +26,13 @@ router.put("/update", async (req, res) => {
     let rule = new Rule_1.Rule();
     rule = req.body;
     const updateRuleRef = db.collection('rules').doc(rule.id);
-    updateruleRef.update(JSON.parse(JSON.stringify(rule)))
-        .then(response => {
+    updateRuleRef.update(JSON.parse(JSON.stringify(rule)))
+        .then(() => {
         res.json({
             success: true,
             message: 'Actualización de Regla exitosa',
         });
-    }).catch(e => {
+    }).catch(() => {
         res.json({
             success: false,
             message: 'Error en actualización de Regla'

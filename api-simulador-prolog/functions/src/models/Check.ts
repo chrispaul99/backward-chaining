@@ -67,7 +67,7 @@ export class Check{
             console.log("FALSO");
         return resultado;
     }*/
-    function imprimir(sujetos, predicado):string {
+    imprimir(sujetos:string[], predicado:string):string {
         var oracion = "";
         oracion += predicado + " " + sujetos;
         return oracion;

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const admin = require("firebase-admin");
-// Models
 const Fact_1 = require("../models/Fact");
+// Models
 const db = admin.firestore();
 const router = require("express").Router();
 // Services
@@ -23,7 +23,7 @@ router.post("/create", async (req, res) => {
     });
 });
 router.put("/update", async (req, res) => {
-    let Fact = new Fact();
+    let fact = new Fact_1.Fact();
     fact = req.body;
     const updateFactRef = db.collection('facts').doc(fact.id);
     updateFactRef.update(JSON.parse(JSON.stringify(fact)))
@@ -49,7 +49,7 @@ router.get("/all", async (req, res) => {
     });
     res.json({
         success: true,
-        data: Factlist
+        data: factlist
     });
 });
 router.get("/:id", async (req, res) => {

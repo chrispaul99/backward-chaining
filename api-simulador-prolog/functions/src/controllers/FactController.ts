@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin';
-// Models
 import { Fact } from '../models/Fact';
+// Models
 const db = admin.firestore();
 const router = require("express").Router();
 // Services
@@ -21,7 +21,7 @@ router.post("/create",async (req:any, res:any) => {
     });
 });
 router.put("/update",async (req:any, res:any) => {
-    let Fact:Fact= new Fact();
+    let fact:Fact= new Fact();
     fact= req.body as Fact;
     const updateFactRef = db.collection('facts').doc(fact.id);
         updateFactRef.update(JSON.parse(JSON.stringify(fact)))
@@ -47,7 +47,7 @@ router.get("/all",async (req:any, res:any) => {
     });
     res.json({
         success: true,
-        data: Factlist
+        data: factlist
     });
 });
 router.get("/:id", async (req:any, res:any) => {
