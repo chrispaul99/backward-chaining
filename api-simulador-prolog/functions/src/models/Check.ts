@@ -1,72 +1,61 @@
+import { Fact } from './Fact';
+import { Rule } from './Rule';
 export class Check{
     constructor() {} //constructor
-    /*cumplimiento(predicado, sujetos, hechos, reglas) {
-        var resultado = false;
-        for (const r of reglas) {
-            if (r.predicado == predicado) {
-                if (r.condicion != 0) {
-                    let reglaencontrada = reglas.find(element => element.id == r.condicion);
-                    resultado = this.cumplimiento(reglaencontrada.predicado, sujetos, hechos, reglas);
-                    for (const done of hechos) {
-                        for (const s of sujetos) {
-                            if (done.predicado == r.predicado) {
-                                if (done.sujetos.find(element => element = s)) {
-                                    this.imprimir(done.sujetos, predicado);
-                                    resultado = true;
-                                    break;
-                                } else {
-                                    for (var i = 0; i < done.sujetos.length(); i++) {
-                                        if (done.sujetos[i] != s) {
-                                            const definicion = s + "=" + done.sujetos[i] + "\n";
-                                            console.log(definicion);
-                                            const aux = [];
-                                            aux.push(done.sujetos[i]);
-                                            this.imprimir(aux, predicado);
-                                            console.log("****************************\n");
-                                            resultado = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
+    verificadorVerdad(consulta:Fact,hechos:Fact[],reglas:Rule[]):Fact[]{
+        let hechosfinales:Fact[]=[];
+        let conclusion= reglas.find(element=>element.conclusion.predicado==consulta.predicado && element.conclusion.sujetos.length==consulta.sujetos.length);
+        if(conclusion!=undefined){
+            let j=0;
+            for (const item of conclusion.condiciones) {
+                let hecho = this.verificadorHecho(item,hechos,consulta.sujetos);
+                if(hecho!=undefined){
+                    hechosfinales.push(hecho);
+                }
+                else{
+                    hechosfinales.push(hecho)
+                    if(conclusion.condiciones.length<2)
+                        hechosfinales=this.verificadorVerdad(item,hechos,reglas);
+                    else{
+                        if(conclusion.operadores[j]=="AND"){
+                            hechosfinales=[];
+                            break;
+                        }else{
+                            if(conclusion.operadores[j]=="OR"){
+                                hechosfinales=this.verificadorVerdad(item,hechos,reglas);
+                            }else{
+                                console.log("QUE PROCEDE CON EL THEN");
                             }
-                        }
-                    }
-                } else {
-                    for (const done of hechos) {
-                        for (const s of sujetos) {
-                            if (done.predicado == r.predicado) {
-                                if (done.sujetos.find(element => element = s)) {
-                                    this.imprimir(done.sujetos, predicado);
-                                    resultado = true;
-                                    break;
-                                } else {
-                                    for (var i = 0; i < done.sujetos.length(); i++) {
-                                        if (done.sujetos[i] != s) {
-                                            const definicion = s + "=" + done.sujetos[i] + "\n";
-                                            console.log(definicion);
-                                            const aux = [];
-                                            aux.push(done.sujetos[i]);
-                                            this.imprimir(aux, predicado);
-                                            console.log("****************************\n");
-                                            resultado = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
+                        } 
                     }
                 }
             }
         }
-        if (resultado)
-            console.log("VERDADERO");
-        else
-            console.log("FALSO");
-        return resultado;
-    }*/
+        return hechosfinales;
+    }
+    verificadorHecho(item:Fact,hechos:Fact[],sujetos:string[]):any{
+        let h:Fact[] = [];
+        hechos.forEach(element=>{
+            if(element.predicado==item.predicado && item.sujetos.length==item.sujetos.length){
+                h.push(element);
+            }
+        })
+        if(h.length==0){
+            return undefined;
+        }else{
+            for (let i= 0; i < sujetos.length; i++) {
+                let cont=0;
+                for (let j = 0; j < h.length; j++) {
+                    if(h[j].sujetos[i]==sujetos[i]){
+                        cont++;
+                    }
+                    if(cont==h[j].sujetos.length){
+                        return h[j];
+                    }
+                }
+            }
+        }
+    }
     imprimir(sujetos:string[], predicado:string):string {
         var oracion = "";
         oracion += predicado + " " + sujetos;
