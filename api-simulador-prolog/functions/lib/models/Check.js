@@ -4,160 +4,147 @@ exports.Check = void 0;
 class Check {
     constructor() { } //constructor
     verificadorVerdad(predicado, sujetos, hechos, reglas) {
-        let solucionesposibles = [];
-        //busco en las reglas si existe una conclusion
-        let conclusion = reglas.find(element => element.conclusion.predicado == predicado && element.conclusion.sujetos.length == sujetos.length);
-        if (conclusion != undefined) {
-            // Si la regla existe se procede a obtener las variables de cada condicion
-            let sujetoscondiciones = [];
-            let predicadoscondiciones = [];
-            for (const condicion of conclusion.condiciones) {
-                sujetoscondiciones.push(condicion.sujetos);
-                predicadoscondiciones.push(condicion.predicado);
-            }
-            let j = 0;
-            for (const sujeto of conclusion.conclusion.sujetos) {
-                for (const suj of sujetoscondiciones) {
-                    if (suj.includes(sujeto)) {
-                        let i = suj.findIndex(e => e == sujeto);
-                        if (i > -1) {
-                            suj[i] = sujetos[j];
+        console.log(sujetos);
+        let hechoscondiciones = [];
+        let pos = reglas.findIndex(e => e.conclusion.predicado == predicado && e.conclusion.sujetos.length == sujetos.length);
+        if (pos > -1) {
+            //Se encontro una conclusion en las reglas
+            let conclusion = reglas[pos];
+            //obtengo las incognitas de la regla
+            let incognitas = this.obtenerIncognitas(conclusion);
+            //console.log(incognitas);
+            //verifico si los sujetos son constantes o variables
+            if (this.verificarsujetos(sujetos)) {
+                //igualo las incognitas
+                //crear matriz con incognita y su equivalencia
+                let variablesigualadas = [];
+                for (let index = 0; index < conclusion.conclusion.sujetos.length; index++) {
+                    variablesigualadas.push([conclusion.conclusion.sujetos[index], sujetos[index]]);
+                }
+                //verifico que variable me falta
+                incognitas.forEach(el => {
+                    let cont = 0;
+                    for (let index = 0; index < variablesigualadas.length; index++) {
+                        if (el == variablesigualadas[index][0]) {
+                            cont++;
+                        }
+                    }
+                    if (cont == 0) {
+                        variablesigualadas.push([el, "I"]);
+                    }
+                });
+                //reemplazar variables en condiciones 
+                for (let i = 0; i < conclusion.condiciones.length; i++) {
+                    for (let j = 0; j < conclusion.condiciones[i].sujetos.length; j++) {
+                        if (conclusion.condiciones[i].sujetos[j] == variablesigualadas[i][0]) {
+                            conclusion.condiciones[i].sujetos[j] = variablesigualadas[i][1];
                         }
                     }
                 }
-                j++;
-            }
-            //console.log(sujetoscondiciones);
-            //console.log(predicadoscondiciones);
-            let hechoscumplidos = [];
-            j = 0;
-            for (const pred of conclusion.condiciones) {
-                let hechospredicado = [];
-                if (this.verificarsujetos(sujetoscondiciones[j])) {
-                    //Si no existe ninguna INCOGNITA
-                    console.log("verificar sujetos");
-                }
-                else {
-                    console.log("entre");
-                    //Existe almenos 1 incognita
-                    hechos.forEach(e => {
-                        if (e.sujetos.length == sujetoscondiciones[j].length && e.predicado == pred.predicado) {
-                            hechospredicado.push(e);
-                        }
-                    });
-                    if (hechoscumplidos == []) {
-                        //no existe algun hecho con la condicion dada
-                        hechospredicado = this.verificadorVerdad(pred.predicado, sujetoscondiciones[j], hechos, reglas);
+                //envio a consultar si la condicion es un hecho
+                for (const cond of conclusion.condiciones) {
+                    let hechosvalidados = [];
+                    //console.log(cond);
+                    hechosvalidados = this.verificarHecho(cond, hechos);
+                    if (hechosvalidados.length == 0) {
+                        //Tenemos que aplicar recursividad
+                        hechosvalidados = this.verificadorVerdad(cond.predicado, cond.sujetos, hechos, reglas);
                     }
+                    hechoscondiciones.push(hechosvalidados);
                 }
-                hechoscumplidos.push(hechospredicado);
-                j++;
-            }
-            if (hechoscumplidos == []) {
-                return [];
+                //console.log(conclusion.condiciones);
             }
             else {
-                if (hechoscumplidos.length > 1) {
-                    //Usar operadorea
-                    /*let aux = hechoscumplidos[0];
-                    hechoscumplidos.forEach(e=>{
-                    if(e)
-                });*/
+                //Existe al menos 1 variable en la conclusion ingresada
+                let variablesigualadas = [];
+                for (let index = 0; index < conclusion.conclusion.sujetos.length; index++) {
+                    variablesigualadas.push([conclusion.conclusion.sujetos[index], sujetos[index]]);
                 }
-                else {
-                    if (this.verificarsujetos(sujetoscondiciones[0])) {
-                        // Si son sujetos
+                variablesigualadas.sort();
+                //verifico que variable me falta
+                incognitas.forEach(el => {
+                    let cont = 0;
+                    for (let index = 0; index < variablesigualadas.length; index++) {
+                        if (el == variablesigualadas[index][0]) {
+                            cont++;
+                        }
                     }
-                    else {
-                        solucionesposibles = hechoscumplidos[0];
-                        // Son variables
+                    if (cont == 0) {
+                        variablesigualadas.push([el, "I"]);
+                    }
+                });
+                for (let i = 0; i < conclusion.condiciones.length; i++) {
+                    for (let j = 0; j < conclusion.condiciones[i].sujetos.length; j++) {
+                        if (conclusion.condiciones[i].sujetos[j] == variablesigualadas[i][0]) {
+                            conclusion.condiciones[i].sujetos[j] = variablesigualadas[i][1];
+                        }
                     }
                 }
-                console.log(solucionesposibles);
-                return solucionesposibles;
+                //envio a consultar si la condicion es un hecho
+                for (const cond of conclusion.condiciones) {
+                    let hechosvalidados = [];
+                    console.log(cond);
+                    hechosvalidados = this.verificarHecho(cond, hechos);
+                    if (hechosvalidados.length == 0) {
+                        //Tenemos que aplicar recursividad
+                        hechosvalidados = this.verificadorVerdad(cond.predicado, cond.sujetos, hechos, reglas);
+                    }
+                    hechoscondiciones.push(hechosvalidados);
+                }
             }
+            return [];
         }
         else {
             return [];
         }
-        /*if(this.verificarsujetoiguales(consulta.sujetos)){
-            
-            if(conclusion!=undefined){
-                if(conclusion.condiciones.length==1){
-                    hechosconsultados = this.verificadorHecho(conclusion.condiciones[0],hechos,consulta.sujetos);
-                    if(hechosconsultados.length==0){
-                        hechosfinales=this.verificadorVerdad(conclusion.condiciones[0],hechos,reglas);
-                    }else{
-                        hechosfinales=hechosconsultados;
-                    }
-                }else{
-                    let j=0;
-                    for (const item of conclusion.condiciones) {
-                        hechosconsultados = this.verificadorHecho(item,hechos,consulta.sujetos);
-                        if(hechosconsultados.length==0){
-                            if(conclusion.operadores[j]=="AND"){
-                                hechosfinales=[];
-                                break;
-                            }else{
-                                if(conclusion.operadores[j]=="OR"){
-                                    hechosfinales=this.verificadorVerdad(item,hechos,reglas);
-                                }
-                            }
-                        }else{
-                            hechosfinales=this.verificadorVerdad(item,hechos,reglas);
-                        }
-                    }
-                }
-                
-            }
-        }*/
     }
-    /*
-    verificadorHecho(item:Fact,hechos:Fact[],sujetos:string[]):Fact[]{
-        let h:Fact[] = [];
-        let haux:Fact[]=[];
-        hechos.forEach(element=>{
-            if(element.predicado==item.predicado && item.sujetos.length==item.sujetos.length){
-                h.push(element);
-            }
-        })
-        if(h.length>0){
-           let cont=[];
-          
-            for (let i= 0; i < sujetos.length; i++) {
-                if(this.verificarsujeto(sujetos[i])){
-                    for (let j = 0; j < h.length; j++) {
-                        for(let k=0;k<h[j].sujetos.length;k++){
-                            if(h[j].sujetos[k]==sujetos[i]){
-                                cont.push(j);
-                            }
-                        }
-                       
-                    }
-                }else{
-                    for (let j = 0; j < h.length; j++) {
-                        if(!this.existe(h[j],haux))
-                            haux.push(h[j]);
-                            
-                    }
+    obtenerIncognitas(conclusion) {
+        let incognitas = [];
+        conclusion.condiciones.forEach(condicion => {
+            condicion.sujetos.forEach(sujeto => {
+                if (!incognitas.includes(sujeto)) {
+                    incognitas.push(sujeto);
                 }
+            });
+        });
+        return incognitas;
+    }
+    verificarsujetos(sujetos) {
+        let ban = true;
+        sujetos.forEach(s => {
+            if (s == s.toUpperCase()) {
+                ban = false;
             }
-            for (let index = 0; index < cont.length; index++) {
-                haux.push(h[cont[index]]);
+        });
+        return ban;
+    }
+    verificarHecho(h, hechos) {
+        let hechosbd = [];
+        for (const item of hechos) {
+            if (h.predicado == item.predicado && this.validacionsujetohecho(item.sujetos, h.sujetos)) {
+                hechosbd.push(item);
             }
         }
-        return haux;
+        return hechosbd;
     }
-    */
-    //Verificar si existe alguna incognita dentro de los sujetos de la conclusion recibida
-    verificarsujetos(sujetos) {
-        for (let index = 0; index < sujetos.length; index++) {
-            let letra = sujetos[0].charAt(index);
-            if (letra == letra.toUpperCase()) {
+    validacionsujetohecho(sujetos, datos) {
+        let cont = 0;
+        if (sujetos.length == datos.length) {
+            for (let index = 0; index < sujetos.length; index++) {
+                if (sujetos[index] == datos[index]) {
+                    cont++;
+                }
+            }
+            if (cont >= 1) {
+                return true;
+            }
+            else {
                 return false;
             }
         }
-        return true;
+        else {
+            return false;
+        }
     }
 }
 exports.Check = Check;
