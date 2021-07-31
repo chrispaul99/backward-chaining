@@ -3,7 +3,6 @@ import { Rule } from './Rule';
 export class Check{
     constructor() {} //constructor
     verificadorVerdad(predicado:string,sujetos:string[],hechos:Fact[],reglas:Rule[]):Fact[]{
-        console.log(sujetos);
         let hechoscondiciones:Fact[][]=[];
         let pos = reglas.findIndex(e=>e.conclusion.predicado==predicado && e.conclusion.sujetos.length==sujetos.length);
         if(pos>-1){
@@ -62,6 +61,25 @@ export class Check{
                     }
                     hechoscondiciones.push(hechosvalidados);  
                 }
+                if(hechoscondiciones.length==0){
+                    return [];
+                }else{
+                    if(hechoscondiciones.length==1){
+                        console.log(variablesigualadas);
+                        for (let j = 0; j < conclusion.condiciones.length; j++) {
+                            for (let index = 0; index < hechoscondiciones.length; index++) {
+                                console.log(hechoscondiciones[0]);
+                                
+                            }
+                            
+                        }
+                        console.log(conclusion.conclusion);
+                        return hechoscondiciones[0];
+                    }else{
+                        console.log(hechoscondiciones);
+                        // Si existe más hechos;
+                    }
+                }
                 
                  //console.log(conclusion.condiciones);
             }else{
@@ -87,18 +105,18 @@ export class Check{
                    });
                    for (let i = 0; i < conclusion.condiciones.length; i++) {
                     for (let j = 0; j < conclusion.condiciones[i].sujetos.length; j++) {
-                        if(conclusion.condiciones[i].sujetos[j] == variablesigualadas[i][0]){
-                            conclusion.condiciones[i].sujetos[j] = variablesigualadas[i][1];
+                        if(conclusion.condiciones[i].sujetos[j] == variablesigualadas[j][0]){
+                            conclusion.condiciones[i].sujetos[j] = variablesigualadas[j][1];
                         }
                         
                     }
                     
                 }
+
                 
                 //envio a consultar si la condicion es un hecho
                 for (const cond of conclusion.condiciones) {
                     let hechosvalidados:Fact[]=[];
-                    console.log(cond);
                     hechosvalidados = this.verificarHecho(cond,hechos);
                     if(hechosvalidados.length==0){
                         //Tenemos que aplicar recursividad
@@ -106,6 +124,41 @@ export class Check{
                     }
                     hechoscondiciones.push(hechosvalidados);
                 }
+                if(hechoscondiciones.length==0){
+                    return [];
+                }else{
+                    console.log(variablesigualadas);
+                    if(hechoscondiciones.length==1){
+                        for (let j = 0; j < conclusion.condiciones.length; j++) {
+                            for (let index = 0; index <conclusion.condiciones[j].sujetos.length; index++) {
+                                conclusion.condiciones[j].sujetos[index]=hechoscondiciones[0][0].sujetos[index];
+                               
+                                
+                            }
+                            
+                        }
+                        for (let index = 0; index < conclusion.condiciones.length; index++) {
+                            for (let i = 0; i < variablesigualadas.length; i++) {
+                                variablesigualadas[i][1]=conclusion.condiciones[index].sujetos[i];
+                                
+                            }
+                            
+                        }
+                        for (let k = 0; k < conclusion.conclusion.sujetos.length; k++) {
+                            for (let i = 0; i < variablesigualadas.length; i++) {
+                                if(variablesigualadas[i][0]==conclusion.conclusion.sujetos[k]){
+                                    conclusion.conclusion.sujetos[k]=variablesigualadas[i][1];
+                                }     
+                            }
+                            
+                        }
+                        return conclusion.conclusion;
+                    }else{
+                        console.log(hechoscondiciones);
+                        // Si existe más hechos;
+                    }
+                }
+               
             }
             return [];
         }else{
