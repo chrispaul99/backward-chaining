@@ -29,7 +29,7 @@ router.post("/checking-action",async (req:any, res:any) => {
         let regla = doc.data() as Rule;
         ruleslist.push(regla);
     });
-    let hechosfinales:Fact[]=checking.verificadorVerdad(checkFact,factlist,ruleslist);
+    let hechosfinales:Fact[]=checking.verificadorVerdad(checkFact.predicado,checkFact.sujetos,factlist,ruleslist);
     if(hechosfinales.length==0){
         res.json({
             success: false,
