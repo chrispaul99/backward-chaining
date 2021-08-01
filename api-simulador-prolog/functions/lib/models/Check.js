@@ -1,18 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Check = void 0;
+const Fact_1 = require("./Fact");
 class Check {
     constructor() { } //constructor
     verificadorVerdad(predicado, sujetos, hechos, reglas) {
         let hechoscondiciones = [];
         let finales = [];
-        console.log("**********************************");
-        console.log(sujetos);
-        console.log("**********************************");
+        console.log("************PREDICADO***************");
         console.log(predicado);
-        console.log("**********************************");
+        console.log("************SUJETOS***************");
+        console.log(sujetos);
         let pos = reglas.findIndex(e => e.conclusion.predicado == predicado && e.conclusion.sujetos.length == sujetos.length);
         if (pos > -1) {
+            console.log("************SI EXISTE UNA CONCLUSION***************");
             //Se encontro una conclusion en las reglas
             let conclusion = reglas[pos];
             //obtengo las incognitas de la regla
@@ -35,9 +36,11 @@ class Check {
                     variablesigualadas.push([el, "I"]);
                 }
             });
+            console.log("************IGUALDAD DE VARIABLES***************");
             console.log(variablesigualadas);
             //verifico si los sujetos son constantes o variables
             if (this.verificarsujetos(sujetos)) {
+                console.log("************SOMOS SUJETOS***************");
                 //reemplazar variables en condiciones 
                 for (let i = 0; i < conclusion.condiciones.length; i++) {
                     for (let j = 0; j < conclusion.condiciones[i].sujetos.length; j++) {
@@ -46,20 +49,27 @@ class Check {
                         }
                     }
                 }
+                console.log("************LAS CONDICIONES IGUALADAS SON***************");
                 console.log(conclusion.condiciones);
                 //envio a consultar si la condicion es un hecho
-                for (var cond of conclusion.condiciones) {
+                console.log("************VERIFICACION DE HECHOS***************");
+                for (let cond of conclusion.condiciones) {
+                    console.log("************ESTOY EVALUANDO***************");
+                    console.log(cond.predicado);
                     let hechosvalidados = [];
                     //console.log(cond);
                     hechosvalidados = this.verificarHecho(cond, hechos);
+                    console.log(hechosvalidados);
                     if (hechosvalidados.length == 0) {
                         //Tenemos que aplicar recursividad
+                        console.log("************NECESITAMOS VERIFICAR SI EXISTE UN CONCLUSION CON ESA CONDICION***************");
                         hechosvalidados = this.verificadorVerdad(cond.predicado, cond.sujetos, hechos, reglas);
-                        console.log(hechosvalidados);
+                        if (hechosvalidados.length == 0) {
+                            console.log("************NO SE PUDO VALIDAR LA TESIS***************");
+                            return [];
+                        }
                     }
                     hechoscondiciones.push(hechosvalidados);
-                    console.log("*********************************");
-                    console.log(hechoscondiciones);
                 }
                 if (hechoscondiciones.length == 0) {
                     return [];
@@ -84,24 +94,42 @@ class Check {
                                 }
                             }
                         }
+                        finales = hechoscondiciones[0];
                     }
                     else {
-                        for (const op of conclusion.operadores) {
+                        console.log(hechoscondiciones);
+                        for (let op of conclusion.operadores) {
+                            console.log(conclusion.operadores);
                             if (op == "OR") {
-                                return hechoscondiciones[0];
+                                finales = hechoscondiciones[0];
                             }
                             else {
                                 if (op == "AND") {
-                                    let aux = hechoscondiciones[0];
-                                    for (let index = 1; index < hechoscondiciones.length; index++) {
+                                    console.log("VARIABLES");
+                                    console.log(variablesigualadas);
+                                    console.log("CONDICIONES");
+                                    console.log(conclusion.condiciones);
+                                    console.log("HECHOS");
+                                    for (let index = 0; index < hechoscondiciones.length; index++) {
                                         for (let j = 0; j < hechoscondiciones[index].length; j++) {
-                                            for (let k = 0; k < hechoscondiciones[index][j].sujetos.length; k++) {
-                                                if (aux[j].sujetos[k] == hechoscondiciones[index][j].sujetos[k]) {
-                                                    finales.push(hechoscondiciones[index][j]);
+                                            console.log(hechoscondiciones[index][j]);
+                                            /*for (let k = 0; k < hechoscondiciones[index][j].sujetos.length; k++) {
+                                                let p = hechoscondiciones[index][j].sujetos.findIndex(e=>e==aux[j].sujetos[k]);
+                                                if(p>-1){
+                                                    cont++;
                                                 }
-                                            }
+                                                if(cont==2){
+                                                    finales.push(aux);
+                                                    finales.push(hechoscondiciones[index][j]);
+                                                    break;
+
+                                                }
+                                            }*/
                                         }
+                                        //aux = hechoscondiciones[index];
                                     }
+                                    console.log("CONCLUSION");
+                                    console.log(conclusion.conclusion);
                                 }
                             }
                         }
@@ -110,6 +138,7 @@ class Check {
                 //console.log(conclusion.condiciones);
             }
             else {
+                console.log("************TENEMOS INCOGNITAS***************");
                 //Existe al menos 1 variable en la conclusion ingresada
                 variablesigualadas.sort();
                 for (let i = 0; i < conclusion.condiciones.length; i++) {
@@ -119,15 +148,19 @@ class Check {
                         }
                     }
                 }
+                console.log("************LAS CONDICIONES IGUALADAS SON***************");
                 console.log(conclusion.condiciones);
                 //envio a consultar si la condicion es un hecho
-                for (const cond of conclusion.condiciones) {
+                console.log("************VERIFICACION DE HECHOS***************");
+                for (let cond of conclusion.condiciones) {
                     let hechosvalidados = [];
+                    console.log("************ESTOY VERIFICANDO***************");
+                    console.log(cond.predicado);
                     hechosvalidados = this.verificarHecho(cond, hechos);
-                    console.log("**********************************");
                     console.log(hechosvalidados);
                     if (hechosvalidados.length == 0) {
                         //Tenemos que aplicar recursividad
+                        console.log("************NECESITAMOS VERIFICAR SI EXISTE UN CONCLUSION CON ESA CONDICION***************");
                         hechosvalidados = this.verificadorVerdad(cond.predicado, cond.sujetos, hechos, reglas);
                     }
                     hechoscondiciones.push(hechosvalidados);
@@ -136,29 +169,43 @@ class Check {
                     return [];
                 }
                 else {
-                    //console.log(variablesigualadas);
+                    console.log(hechoscondiciones);
+                    //Solo tiene una condicion con hechos
                     if (hechoscondiciones.length == 1) {
-                        for (let j = 0; j < conclusion.condiciones.length; j++) {
-                            for (let index = 0; index < conclusion.condiciones[j].sujetos.length; index++) {
-                                conclusion.condiciones[j].sujetos[index] = hechoscondiciones[0][0].sujetos[index];
-                            }
-                        }
-                        for (let index = 0; index < conclusion.condiciones.length; index++) {
-                            for (let i = 0; i < variablesigualadas.length; i++) {
-                                variablesigualadas[i][1] = conclusion.condiciones[index].sujetos[i];
-                            }
-                        }
-                        console.log(variablesigualadas);
-                        for (let k = 0; k < conclusion.conclusion.sujetos.length; k++) {
-                            for (let i = 0; i < variablesigualadas.length; i++) {
-                                if (variablesigualadas[i][0] == conclusion.conclusion.sujetos[k]) {
-                                    conclusion.conclusion.sujetos[k] = variablesigualadas[i][1];
+                        console.log("SOLO TENEMOS UNA CONDICION");
+                        let m = 0;
+                        let j = 0;
+                        let index = 0;
+                        let i = 0;
+                        let k = 0;
+                        let l = 0;
+                        for (m = 0; m < hechoscondiciones[0].length; m++) {
+                            for (j = 0; j < conclusion.condiciones.length; j++) {
+                                for (index = 0; index < conclusion.condiciones[j].sujetos.length; index++) {
+                                    conclusion.condiciones[j].sujetos[index] = hechoscondiciones[0][m].sujetos[index];
                                 }
                             }
+                            console.log("REEMPLAZO EN CONDICIONES");
+                            for (index = 0; index < conclusion.condiciones.length; index++) {
+                                for (i = 0; i < variablesigualadas.length; i++) {
+                                    variablesigualadas[i][1] = conclusion.condiciones[index].sujetos[i];
+                                }
+                            }
+                            console.log(conclusion.condiciones);
+                            console.log("VERIFICACION CON CONCLUSION");
+                            let cumplido = new Fact_1.Fact();
+                            for (k = 0; k < conclusion.conclusion.sujetos.length; k++) {
+                                for (l = 0; l < variablesigualadas.length; l++) {
+                                    let posicion = conclusion.conclusion.sujetos.findIndex(e => e == variablesigualadas[l][0]);
+                                    if (posicion > -1) {
+                                        cumplido.predicado = conclusion.conclusion.predicado;
+                                        cumplido.sujetos[posicion] = variablesigualadas[l][1];
+                                    }
+                                }
+                            }
+                            //Verifica si se cumple la condicion
+                            finales.push(cumplido);
                         }
-                        console.log(conclusion.conclusion);
-                        console.log("********************************");
-                        finales.push(conclusion.conclusion);
                     }
                     else {
                         let finales = [];
@@ -231,12 +278,19 @@ class Check {
                 return true;
             }
             else {
+                for (let s = 0; s < datos.length; s++) {
+                    if (datos[s] == datos[s].toUpperCase()) {
+                        return true;
+                    }
+                }
                 return false;
             }
         }
         else {
             return false;
         }
+    }
+    busquedabinaria() {
     }
 }
 exports.Check = Check;
