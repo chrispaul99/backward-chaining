@@ -42,13 +42,8 @@ class Check {
             if (this.verificarsujetos(sujetos)) {
                 console.log("************SOMOS SUJETOS***************");
                 //reemplazar variables en condiciones 
-                for (let i = 0; i < conclusion.condiciones.length; i++) {
-                    for (let j = 0; j < conclusion.condiciones[i].sujetos.length; j++) {
-                        if (conclusion.condiciones[i].sujetos[j] == variablesigualadas[i][0]) {
-                            conclusion.condiciones[i].sujetos[j] = variablesigualadas[i][1];
-                        }
-                    }
-                }
+                //Igualar condiciones
+                conclusion.condiciones = this.igualarcondiciones(conclusion.condiciones, variablesigualadas);
                 console.log("************LAS CONDICIONES IGUALADAS SON***************");
                 console.log(conclusion.condiciones);
                 //envio a consultar si la condicion es un hecho
@@ -75,7 +70,7 @@ class Check {
                     return [];
                 }
                 else {
-                    //console.log(variablesigualadas);
+                    //Solo tiene una condicion con hechos
                     if (hechoscondiciones.length == 1) {
                         for (let j = 0; j < conclusion.condiciones.length; j++) {
                             for (let index = 0; index < conclusion.condiciones[j].sujetos.length; index++) {
@@ -125,16 +120,17 @@ class Check {
                         let cont = 0;
                         let ban = false;
                         for (let i = 0; i < oracionfinal.length; i = i + 2) {
+                            let val = oracionfinal[i + 2];
                             switch (oracionfinal[i + 1]) {
                                 case "AND": {
                                     ;
-                                    if (aux && oracionfinal[i + 2]) {
+                                    if (aux && val) {
                                         cont++;
                                     }
                                     break;
                                 }
                                 case "0R": {
-                                    if (aux || [oracionfinal][i + 2]) {
+                                    if (aux || val) {
                                         ban = true;
                                         break;
                                     }
@@ -160,13 +156,8 @@ class Check {
                 console.log("************TENEMOS INCOGNITAS***************");
                 //Existe al menos 1 variable en la conclusion ingresada
                 variablesigualadas.sort();
-                for (let i = 0; i < conclusion.condiciones.length; i++) {
-                    for (let j = 0; j < conclusion.condiciones[i].sujetos.length; j++) {
-                        if (conclusion.condiciones[i].sujetos[j] == variablesigualadas[j][0]) {
-                            conclusion.condiciones[i].sujetos[j] = variablesigualadas[j][1];
-                        }
-                    }
-                }
+                //Igualar condiciones
+                conclusion.condiciones = this.igualarcondiciones(conclusion.condiciones, variablesigualadas);
                 console.log("************LAS CONDICIONES IGUALADAS SON***************");
                 console.log(conclusion.condiciones);
                 //envio a consultar si la condicion es un hecho
@@ -181,6 +172,10 @@ class Check {
                         //Tenemos que aplicar recursividad
                         console.log("************NECESITAMOS VERIFICAR SI EXISTE UN CONCLUSION CON ESA CONDICION***************");
                         hechosvalidados = this.verificadorVerdad(cond.predicado, cond.sujetos, hechos, reglas);
+                        if (hechosvalidados.length == 0) {
+                            console.log("************NO SE PUDO VALIDAR LA TESIS***************");
+                            return [];
+                        }
                     }
                     hechoscondiciones.push(hechosvalidados);
                 }
@@ -337,6 +332,16 @@ class Check {
             }
         }
         return hechofinal;
+    }
+    igualarcondiciones(condiciones, variablesigualadas) {
+        for (let i = 0; i < condiciones.length; i++) {
+            for (let j = 0; j < condiciones[i].sujetos.length; j++) {
+                if (condiciones[i].sujetos[j] == variablesigualadas[i][0]) {
+                    condiciones[i].sujetos[j] = variablesigualadas[i][1];
+                }
+            }
+        }
+        return condiciones;
     }
 }
 exports.Check = Check;
