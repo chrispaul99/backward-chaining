@@ -230,7 +230,20 @@ export class Check{
                         }
                        
                     }else{
-                        /*let oracionfinal = [];
+                        let validaciones:Fact[]=[];
+                        for (let index = 0; index < conclusion.condiciones.length; index++) {
+                            validaciones.push(this.validarcondiciones(index,0,hechoscondiciones,conclusion.condiciones[index]));
+                            
+                        }
+                        let verdades:boolean[]=[];
+                        for (let index = 0; index < validaciones.length; index++) {
+                            if(validaciones[index].sujetos.length>0){
+                                verdades.push(true);
+                            }else{
+                                verdades.push(false);
+                            }
+                        }
+                        let oracionfinal = [];
                         let op = 0;
                         for (const v of verdades) {
                             oracionfinal.push(v);
@@ -239,29 +252,37 @@ export class Check{
                                 op++;
                             }
                         }
-                        for (const op of  conclusion.operadores) {
-                            if(op=="OR"){
-                                return hechoscondiciones[0];
-                            }else{
-                                if(op=="AND"){
-                                   
-                                    let condiciones:Fact[]=reglas[pos].condiciones;
-                                    console.log(condiciones);
-                                    let aux = hechoscondiciones[0];
-                                    for (let index = 1; index < hechoscondiciones.length; index++) {
-                                        for (let j = 0; j < hechoscondiciones[index].length; j++) {
-                                            for (let k = 0; k < hechoscondiciones[index][j].sujetos.length; k++) {
-                                                if(aux[j].sujetos[k]==hechoscondiciones[index][j].sujetos[k]){
-                                                    finales.push(hechoscondiciones[index][j]);
-                                                }
-                                            }
-                                        }
+                        console.log(oracionfinal);
+                        let aux = oracionfinal[0] as boolean;
+                        let cont=0;
+                        let ban=false;
+                        for(let i=0;i<oracionfinal.length;i=i+2){
+                            let val = oracionfinal[i+2] as boolean;
+                            switch(oracionfinal[i+1]){
+                                case "AND":{;
+                                    if(aux && val){
+                                        cont++;
                                     }
-                                   
+                                    break;
+                                }
+                                case "0R":{
+                                    if(aux||val){
+                                        ban=true;
+                                        break;
+                                    }
+                                    break;
                                 }
                             }
-                    
-                        } */
+                        }
+                        console.log(cont);
+                        if(!ban){
+                            if(cont==conclusion.operadores.length){
+                                ban=true;
+                                finales=validaciones;
+                            }
+                        }else{
+                            finales = validaciones;
+                        }
                     }
                    
                 }
