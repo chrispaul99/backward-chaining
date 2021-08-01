@@ -104,47 +104,59 @@ export class Check{
                         }
                         finales = hechoscondiciones[0];
                     }else{
-                        console.log(hechoscondiciones);
-                        for (let op of  conclusion.operadores) {
-                            console.log(conclusion.operadores);
-
-                            if(op=="OR"){
-                                finales = hechoscondiciones[0];
+                        // validar condiciones
+                        let validaciones:Fact[]=[];
+                        for (let index = 0; index < conclusion.condiciones.length; index++) {
+                            validaciones.push(this.validarcondiciones(index,0,hechoscondiciones,conclusion.condiciones[index]));
+                            
+                        }
+                        let verdades:boolean[]=[];
+                        for (let index = 0; index < validaciones.length; index++) {
+                            if(validaciones[index].sujetos.length>0){
+                                verdades.push(true);
                             }else{
-                                if(op=="AND"){
-                                    console.log("VARIABLES");
-                                    console.log(variablesigualadas);
-                                    console.log("CONDICIONES");
-                                    console.log(conclusion.condiciones);
-                                    console.log("HECHOS");
-                                  
-                                    for (let index = 0; index < hechoscondiciones.length; index++) {
-                                        for (let j = 0; j < hechoscondiciones[index].length; j++) {
-                                            console.log(hechoscondiciones[index][j]);
-                                            /*for (let k = 0; k < hechoscondiciones[index][j].sujetos.length; k++) {
-                                                let p = hechoscondiciones[index][j].sujetos.findIndex(e=>e==aux[j].sujetos[k]);
-                                                if(p>-1){
-                                                    cont++;
-                                                }
-                                                if(cont==2){
-                                                    finales.push(aux);
-                                                    finales.push(hechoscondiciones[index][j]);
-                                                    break;
-
-                                                }
-                                            }*/
-                                        }
-                                    
-                                    //aux = hechoscondiciones[index];
-                                }
-                                console.log("CONCLUSION");
-                                console.log(conclusion.conclusion);
-                               
+                                verdades.push(false);
                             }
                         }
-                    
+                        let oracionfinal = [];
+                        let op = 0;
+                        for (const v of verdades) {
+                            oracionfinal.push(v);
+                            if(op<conclusion.operadores.length){
+                                oracionfinal.push(conclusion.operadores[op]);
+                                op++;
+                            }
                         }
-                        
+                        console.log(oracionfinal);
+                        let aux = oracionfinal[0];
+                        let cont=0;
+                        let ban=false;
+                        for(let i=0;i<oracionfinal.length;i=i+2){
+                            switch(oracionfinal[i+1]){
+                                case "AND":{;
+                                    if(aux as boolean && oracionfinal[i+2] as boolean){
+                                        cont++;
+                                    }
+                                    break;
+                                }
+                                case "0R":{
+                                    if(aux||[oracionfinal][i+2] as boolean){
+                                        ban=true;
+                                        break;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        console.log(cont);
+                        if(!ban){
+                            if(cont==conclusion.operadores.length){
+                                ban=true;
+                                finales=validaciones;
+                            }
+                        }else{
+                            finales = validaciones;
+                        }
                     }
                 }
                  //console.log(conclusion.condiciones);
@@ -223,27 +235,38 @@ export class Check{
                         }
                        
                     }else{
-                        let finales:Fact[]=[];
+                        /*let oracionfinal = [];
+                        let op = 0;
+                        for (const v of verdades) {
+                            oracionfinal.push(v);
+                            if(op<conclusion.operadores.length){
+                                oracionfinal.push(conclusion.operadores[op]);
+                                op++;
+                            }
+                        }
                         for (const op of  conclusion.operadores) {
                             if(op=="OR"){
                                 return hechoscondiciones[0];
                             }else{
                                 if(op=="AND"){
+                                   
+                                    let condiciones:Fact[]=reglas[pos].condiciones;
+                                    console.log(condiciones);
                                     let aux = hechoscondiciones[0];
                                     for (let index = 1; index < hechoscondiciones.length; index++) {
                                         for (let j = 0; j < hechoscondiciones[index].length; j++) {
                                             for (let k = 0; k < hechoscondiciones[index][j].sujetos.length; k++) {
                                                 if(aux[j].sujetos[k]==hechoscondiciones[index][j].sujetos[k]){
-                                                   finales.push(hechoscondiciones[index][j]);
+                                                    finales.push(hechoscondiciones[index][j]);
                                                 }
                                             }
                                         }
+                                    }
+                                   
                                 }
-                               
                             }
-                        }
                     
-                        } 
+                        } */
                     }
                    
                 }
@@ -313,7 +336,21 @@ export class Check{
         }
     }
 
-    busquedabinaria(){
-
+    validarcondiciones(icondi:number,ihecho:number,hechos:Fact[][],condicion:Fact):Fact{
+        let pos = -1;
+        let hechofinal:Fact = new Fact();
+        for (let n = 0; n < hechos[icondi][ihecho].sujetos.length; n++) {
+            pos=hechos[icondi][ihecho].sujetos.findIndex(e=>e==condicion.sujetos[n]);
+            if(pos>-1){
+                hechofinal = hechos[icondi][ihecho];
+                break;
+            }else{
+                if(ihecho<hechos[icondi].length-1){
+                    hechofinal = this.validarcondiciones(icondi,ihecho+1,hechos,condicion);
+                }
+                
+            }
+        }
+        return hechofinal;
     }
 }
