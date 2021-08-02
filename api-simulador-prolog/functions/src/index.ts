@@ -16,8 +16,7 @@ const CheckController = require("./controllers/CheckController");
 
  // Express
 const app = express();
-app.use(cors({origin: 'http://localhost:3000',credentials: true, methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']}));
-
+app.use(cors({origin: true, methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']}));
 //Imports Routers
 app.use("/fact",FactController);
 app.use("/rule",RuleController);

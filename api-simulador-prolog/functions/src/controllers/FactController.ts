@@ -5,20 +5,22 @@ const db = admin.firestore();
 const router = require("express").Router();
 // Services
 router.post("/create",async (req:any, res:any) => {
-    let fact:Fact = new Fact();
-    fact = req.body as Fact;
-    const newFactRef = db.collection('facts').doc();
-    newFactRef.set(JSON.parse(JSON.stringify(fact))).then(response => { // Fact created
-        res.json({
-            success: true,
-            message: 'Registro de nuevo Hecho Exitoso',
-        })
-    }).catch(e => { // error creating Fact
-        res.json({
-            success: false,
-            message: 'Error en registro de nuevo Hecho'
-        })
-    });
+    let facts:Fact[] = [];
+    facts = req.body as Fact[];
+    for (const fact of facts) {
+        const newFactRef = db.collection('facts').doc();
+        newFactRef.set(JSON.parse(JSON.stringify(fact))).then(response => { // Fact created
+            res.json({
+                success: true,
+                message: 'Registro de nuevo Hecho Exitoso',
+            })
+        }).catch(e => { // error creating Fact
+            res.json({
+                success: false,
+                message: 'Error en registro de nuevo Hecho'
+            })
+        });
+    }
 });
 router.put("/update",async (req:any, res:any) => {
     let fact:Fact= new Fact();
