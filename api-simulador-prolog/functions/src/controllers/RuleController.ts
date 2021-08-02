@@ -24,13 +24,13 @@ router.put("/update",async (req:any, res:any) => {
     let rule:Rule= new Rule();
     rule= req.body as Rule;
     const updateRuleRef = db.collection('rules').doc(rule.id);
-        updateruleRef.update(JSON.parse(JSON.stringify(rule)))
-        .then(response => { // Rulecreated
+        updateRuleRef.update(JSON.parse(JSON.stringify(rule)))
+        .then(()=> { // Rulecreated
             res.json({
                 success: true,
                 message: 'Actualización de Regla exitosa',
             })
-        }).catch(e => { // error creating rule
+        }).catch(() => { // error creating rule
             res.json({
                 success: false,
                 message: 'Error en actualización de Regla'
@@ -40,9 +40,9 @@ router.put("/update",async (req:any, res:any) => {
 router.get("/all",async (req:any, res:any) => {
     const ref = db.collection("rules");
     const doc = await ref.get();
-    let rulelist:rule[]=[];
+    let rulelist:Rule[]=[];
     doc.docs.map(doc=>{
-        let regla = doc.data() as rule;
+        let regla = doc.data() as Rule;
         rulelist.push(regla);
     });
     res.json({
@@ -54,7 +54,7 @@ router.get("/:id", async (req:any, res:any) => {
     const ref = db.collection("rules");
     const doc = await ref.get();
     doc.docs.map(doc=>{
-        let rule = doc.data() as rule;
+        let rule = doc.data() as Rule;
         if(rule.id==req.params.id){
             res.json({
                 success: true,

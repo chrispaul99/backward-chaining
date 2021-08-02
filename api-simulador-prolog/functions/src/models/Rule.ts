@@ -1,6 +1,7 @@
+import { Fact } from './Fact';
 export class Rule{
     id:string = "";
-    predicado:string="";
-    sujetos:string[]=[];
-    condicion:string[]=[];
+    conclusion:Fact = new Fact();
+    condiciones:Fact[]=[];
+    operadores:string[]=[];
 }
