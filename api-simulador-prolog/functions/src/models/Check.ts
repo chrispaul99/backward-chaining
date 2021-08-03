@@ -20,7 +20,6 @@ export class Check{
                 let conclusion =regla;
                 if(!this.verificarconclusionconsultada(conclusion,visitados)){
                     visitados.push(conclusion);
-                    console.log(conclusion);
                 //obtengo las incognitas de la regla
                 let incognitas = this.obtenerIncognitas(conclusion);
                 
@@ -81,10 +80,8 @@ export class Check{
                         }
                         hechoscondiciones.push(hechosvalidados); 
                     }
-                    if(hechoscondiciones.length==0){
-                        finales = [];
-                    }else{
-                         //Solo tiene una condicion con hechos
+                    console.log(hechoscondiciones);
+                    if(hechoscondiciones.length>0){
                         if(hechoscondiciones.length==1){
                             for (let j = 0; j < conclusion.condiciones.length; j++) {
                                 for (let index = 0; index <conclusion.condiciones[j].sujetos.length; index++) {
@@ -162,9 +159,6 @@ export class Check{
                             }
 
                         }
-                        if(finales.length>0){
-                            break;
-                        }
                     }
                      //console.log(conclusion.condiciones);
                 }else{
@@ -196,11 +190,8 @@ export class Check{
                         
                         hechoscondiciones.push(hechosvalidados);
                     }
-                    if(hechoscondiciones.length==0){
-                        finales = [];
-                    }else{
-                        //console.log(hechoscondiciones);
-                        //Solo tiene una condicion con hechos
+                    console.log(hechoscondiciones);
+                    if(hechoscondiciones.length>0){
                         if(hechoscondiciones.length==1){
                             console.log("SOLO TENEMOS UNA CONDICION");
                             let m=0;
@@ -234,9 +225,9 @@ export class Check{
                                         }
                                     } 
                                 }
+                                console.log(cumplido);
                                 //Verifica si se cumple la condicion
                                 finales.push(cumplido);
-    
                                 
                             }
                            
@@ -431,8 +422,6 @@ export class Check{
     igualarcondiciones(condiciones:Fact[],variablesigualadas:string[][]):Fact[]{
         for (let i = 0; i < condiciones.length; i++) {
             for (let j = 0; j < condiciones[i].sujetos.length; j++) {
-                console.log(condiciones[i].sujetos[j]);
-                console.log(variablesigualadas[i][0]);
                 if(condiciones[i].sujetos[j] == variablesigualadas[j][0]){
                     condiciones[i].sujetos[j] = variablesigualadas[j][1];
                 }
