@@ -17,10 +17,11 @@ class Check {
         if (posiblesconclusiones.length > 0) {
             console.log("************SI EXISTE UNA CONCLUSION***************");
             //Se encontro una conclusion en las reglas
+            console.log(posiblesconclusiones);
             for (const regla of posiblesconclusiones) {
                 console.log(posiblesconclusiones[0].condiciones);
-                let conclusion = regla;
-                if (!this.verificarconclusionconsultada(conclusion, visitados)) {
+                if (this.verificarconclusionconsultada(regla, visitados) == false) {
+                    let conclusion = regla;
                     visitados.push(conclusion);
                     //obtengo las incognitas de la regla
                     let incognitas = this.obtenerIncognitas(conclusion);
@@ -280,6 +281,10 @@ class Check {
                     }
                     hechoscondiciones = [];
                 }
+                else {
+                    console.log("********** REGLAS RECHAZADAS **********");
+                    console.log(regla);
+                }
             }
             return finales;
         }
@@ -430,8 +435,12 @@ class Check {
         return conclusion.conclusion;
     }
     verificarconclusionconsultada(conclusion, rulesconsultadas) {
+        console.log("************** SOY LAS REGLAS VISITADAS ********************");
+        console.log(rulesconsultadas);
+        console.log(conclusion);
         let pos = rulesconsultadas.findIndex(e => e == conclusion);
         if (pos > -1) {
+            console.log("YA VISITASTE ESTA REGLA");
             return true;
         }
         return false;
