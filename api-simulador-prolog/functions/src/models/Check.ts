@@ -15,12 +15,11 @@ export class Check{
         if(posiblesconclusiones.length>0){
             console.log("************SI EXISTE UNA CONCLUSION***************");
             //Se encontro una conclusion en las reglas
-            console.log(posiblesconclusiones);
             for (const regla of posiblesconclusiones) {
-                console.log(posiblesconclusiones[0].condiciones);
                 if(this.verificarconclusionconsultada(regla,visitados)==false){
                     let conclusion =regla;
                     visitados.push(conclusion);
+                  
                     //obtengo las incognitas de la regla
                     let incognitas = this.obtenerIncognitas(conclusion);
                     
@@ -102,7 +101,9 @@ export class Check{
                                         }     
                                     } 
                                 }
-                                finales = hechoscondiciones[0];
+                                hechoscondiciones[0].forEach(e=>{
+                                    finales.push(e);
+                                })
                             }else{
                                 // validar condiciones
                                 let validaciones:Fact[]=[];
@@ -229,9 +230,7 @@ export class Check{
                                     console.log(cumplido);
                                     //Verifica si se cumple la condicion
                                     finales.push(cumplido);
-                                    
                                 }
-                               
                             }else{
                                 let validaciones:Fact[]=[];
                                 for (let index = 0; index < conclusion.condiciones.length; index++) {
