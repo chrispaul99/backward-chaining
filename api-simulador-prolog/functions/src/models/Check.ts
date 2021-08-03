@@ -2,10 +2,11 @@ import { Fact } from './Fact';
 import { Rule } from './Rule';
 export class Check{
     constructor() {} //constructor
-    verificadorVerdad(predicado:string,sujetos:string[],hechos:Fact[],reglas:Rule[]):Fact[]{
+    verificadorVerdad(predicado:string,sujetos:string[],hechos:Fact[],reglas:Rule[],visitados:Rule[]):Fact[]{
         let hechoscondiciones:Fact[][]=[];
         let finales:Fact[]=[];
         let posiblesconclusiones:Rule[]=[];
+        let verdades:boolean[]=[];
         console.log("************PREDICADO***************");
         console.log(predicado);
         console.log("************SUJETOS***************");
@@ -17,7 +18,9 @@ export class Check{
             for (const regla of posiblesconclusiones) {
                 console.log(posiblesconclusiones[0].condiciones);
                 let conclusion =regla;
-                console.log(conclusion);
+                if(!this.verificarconclusionconsultada(conclusion,visitados)){
+                    visitados.push(conclusion);
+                    console.log(conclusion);
                 //obtengo las incognitas de la regla
                 let incognitas = this.obtenerIncognitas(conclusion);
                 
@@ -70,7 +73,7 @@ export class Check{
                         if(hechosvalidados.length==0){
                             //Tenemos que aplicar recursividad
                             console.log("************NECESITAMOS VERIFICAR SI EXISTE UN CONCLUSION CON ESA CONDICION***************");
-                            hechosvalidados=this.verificadorVerdad(cond.predicado,cond.sujetos,hechos,reglas);
+                            hechosvalidados=this.verificadorVerdad(cond.predicado,cond.sujetos,hechos,reglas,visitados);
                             if(hechosvalidados.length==0){
                                 console.log("************NO SE PUDO VALIDAR LA TESIS***************");
                                 break;
@@ -109,7 +112,7 @@ export class Check{
                                 validaciones.push(this.validarcondiciones(index,0,hechoscondiciones,conclusion.condiciones[index]));
                                 
                             }
-                            let verdades:boolean[]=[];
+                           
                             for (let index = 0; index < validaciones.length; index++) {
                                 if(validaciones[index].sujetos.length>0){
                                     verdades.push(true);
@@ -152,14 +155,10 @@ export class Check{
                             if(!ban){
                                 if(cont==conclusion.operadores.length){
                                     ban=true;
-                                    validaciones.forEach(e=>{
-                                        finales.push(e);
-                                    });
+                                    finales.push(this.reemplazoconclusion(validaciones,conclusion));
                                 }
                             }else{
-                                validaciones.forEach(e=>{
-                                    finales.push(e);
-                                });
+                                finales.push(this.reemplazoconclusion(validaciones,conclusion));
                             }
 
                         }
@@ -185,16 +184,16 @@ export class Check{
                         console.log("************ESTOY VERIFICANDO***************");
                         console.log(cond.predicado);
                         hechosvalidados = this.verificarHecho(cond,hechos);
-                        console.log(hechosvalidados);
                         if(hechosvalidados.length==0){
                             //Tenemos que aplicar recursividad
                             console.log("************NECESITAMOS VERIFICAR SI EXISTE UN CONCLUSION CON ESA CONDICION***************");
-                            hechosvalidados=this.verificadorVerdad(cond.predicado,cond.sujetos,hechos,reglas);
+                            hechosvalidados=this.verificadorVerdad(cond.predicado,cond.sujetos,hechos,reglas,visitados);
                             if(hechosvalidados.length==0){
                                 console.log("************NO SE PUDO VALIDAR LA TESIS***************");
                                 break;
                             }
                         }
+                        
                         hechoscondiciones.push(hechosvalidados);
                     }
                     if(hechoscondiciones.length==0){
@@ -247,7 +246,7 @@ export class Check{
                                 validaciones.push(this.validarcondiciones(index,0,hechoscondiciones,conclusion.condiciones[index]));
                                 
                             }
-                            let verdades:boolean[]=[];
+                            console.log(validaciones);
                             for (let index = 0; index < validaciones.length; index++) {
                                 if(validaciones[index].sujetos.length>0){
                                     verdades.push(true);
@@ -290,19 +289,16 @@ export class Check{
                             if(!ban){
                                 if(cont==conclusion.operadores.length){
                                     ban=true;
-                                    validaciones.forEach(e=>{
-                                        finales.push(e);
-                                    });
+                                    finales.push(this.reemplazoconclusion(validaciones,conclusion));
                                 }
                             }else{
-                                validaciones.forEach(e=>{
-                                    finales.push(e);
-                                });
+                                finales.push(this.reemplazoconclusion(validaciones,conclusion));
                             }
                         }
                     }
                 }
-                hechoscondiciones=[];
+                hechoscondiciones=[]; 
+                }           
             }
             return finales;
         }else{
@@ -408,16 +404,25 @@ export class Check{
     validarcondiciones(icondi:number,ihecho:number,hechos:Fact[][],condicion:Fact):Fact{
         let pos = -1;
         let hechofinal:Fact = new Fact();
+        console.log(condicion);
+        let sum=0;
         for (let n = 0; n < hechos[icondi][ihecho].sujetos.length; n++) {
+           
             pos=hechos[icondi][ihecho].sujetos.findIndex(e=>e==condicion.sujetos[n]);
             if(pos>-1){
                 hechofinal = hechos[icondi][ihecho];
                 break;
             }else{
-                if(ihecho<hechos[icondi].length-1){
-                    hechofinal = this.validarcondiciones(icondi,ihecho+1,hechos,condicion);
+                console.log(condicion.sujetos[n]);
+                if(condicion.sujetos[n] == condicion.sujetos[n].toUpperCase()){
+                    sum++;
+                    //variable
                 }
                 
+                if(sum==condicion.sujetos.length){
+                    hechofinal = hechos[icondi][ihecho]
+                    break;
+                }
             }
         }
         return hechofinal;
@@ -434,5 +439,34 @@ export class Check{
             }
         }
         return condiciones;
+    }
+
+    reemplazoconclusion(validaciones:Fact[],conclusion:Rule):Fact{
+        let variables:string[][]=[];
+        for (let index = 0; index < validaciones.length; index++) {
+
+            for (let j = 0; j < conclusion.condiciones[index].sujetos.length; j++) {
+                let variable:string[]=[];
+                variable.push(conclusion.condiciones[index].sujetos[j]);
+                variable.push(validaciones[index].sujetos[j]);
+                variables.push(variable);
+            }
+        }
+        for (let i = 0; i < variables.length; i++) {
+            conclusion.conclusion.sujetos[i]=variables[i][1]; 
+        }
+        let result = conclusion.conclusion.sujetos.filter((item,index)=>{
+            return conclusion.conclusion.sujetos.indexOf(item) === index;
+        });
+        conclusion.conclusion.sujetos = result;
+        return conclusion.conclusion;
+    }
+
+    verificarconclusionconsultada(conclusion:Rule,rulesconsultadas:Rule[]):boolean{
+        let pos = rulesconsultadas.findIndex(e=>e==conclusion);
+        if(pos>-1){
+            return true;
+        }
+        return false;
     }
 }
