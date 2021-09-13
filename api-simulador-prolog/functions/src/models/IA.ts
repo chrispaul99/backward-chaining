@@ -206,7 +206,7 @@ export class IA{
     }
     verificaracentos(palabra:string):boolean{
         for (let i = 0; i < palabra.length; i++) {
-            if(palabra[i] == 'ñ' || palabra[i] == 'Ñ' || palabra[i] == 'Á' || palabra[i] == 'É' || palabra[i] == 'Í' || palabra[i] == 'Ó' || palabra[i] == 'Ú' || palabra[i] == 'á' || palabra[i] == 'é' || palabra[i] == 'í' || palabra[i] == 'ó' || palabra[i] == 'ú'){
+            if(palabra[i] == 'ñ' || palabra[i] == 'Ñ' || palabra[i] == 'Á' || palabra[i] == 'É' || palabra[i] == 'Í' || palabra[i] == 'Ó' || palabra[i] == 'Ú' || palabra[i] == 'á' || palabra[i] == 'é' || palabra[i] == 'í' || palabra[i] == 'ó' || palabra[i] == 'ú' || palabra[i]== " "){
                 return true;
             }
             
