@@ -13,6 +13,7 @@ admin.initializeApp({
 const FactController = require("./controllers/FactController");
 const RuleController = require("./controllers/RuleController");
 const CheckController = require("./controllers/CheckController");
+const IAController = require("./controllers/IAController");
 
  // Express
 const app = express();
@@ -21,5 +22,6 @@ app.use(cors({origin: true, methods: ['GET','POST','DELETE','UPDATE','PUT','PATC
 app.use("/fact",FactController);
 app.use("/rule",RuleController);
 app.use("/check",CheckController);
+app.use("/ia",IAController);
 
 exports.api = functions.https.onRequest(app);
